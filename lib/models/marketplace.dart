@@ -2,7 +2,7 @@
 
 import 'package:hive/hive.dart';
 
-part 'marketplace.g.dart'; // Run: flutter packages pub run build_runner build
+part 'marketplace.g.dart'; 
 
 @HiveType(typeId: 1)
 class FarmProduct {
