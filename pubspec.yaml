@@ -55,6 +55,9 @@ dependencies:
   flutter_map: ^6.1.0
   latlong2: ^0.9.1
   
+  # For Gemini AI and pest identification (Visual RAG)
+  google_generative_ai: ^0.4.2
+  
   # Utility
   intl: ^0.18.1 # For date/time formatting
 

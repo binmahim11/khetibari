@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:khetibari/services/marketplace_service.dart';
 import 'package:khetibari/utils/animations.dart';
 import 'package:khetibari/screens/risk_map';
+import 'package:khetibari/screens/pest_identification_page.dart';
 
 class FarmerDashboardPage extends StatefulWidget {
   final String farmerId;
@@ -130,6 +131,22 @@ class _FarmerDashboardPageState extends State<FarmerDashboardPage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => RiskMapPage(
+                      farmerId: widget.farmerId,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildActionButton(
+              'পোকা চিহ্নিতকরণ',
+              'AI দ্বারা পোকা সনাক্ত করুন এবং সমাধান পান',
+              Icons.bug_report,
+              Colors.orange,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => PestIdentificationPage(
                       farmerId: widget.farmerId,
                     ),
                   ),
