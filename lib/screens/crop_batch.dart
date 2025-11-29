@@ -9,6 +9,8 @@ import 'package:khetibari/services/weather_service.dart';
 import 'package:khetibari/utils/constants.dart';
 
 class CropBatchPage extends StatefulWidget {
+  const CropBatchPage({super.key});
+
   @override
   _CropBatchPageState createState() => _CropBatchPageState();
 }
@@ -17,7 +19,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedUpazila;
   double _weight = 0;
-  DateTime _harvestDate = DateTime.now();
+  final DateTime _harvestDate = DateTime.now();
 
   List<CropBatch> _batches = [];
   bool _isLoading = true;
@@ -86,7 +88,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            Constants.getTranslation('register_crop_btn') + ' সফল হয়েছে!',
+            '${Constants.getTranslation('register_crop_btn')} সফল হয়েছে!',
           ),
         ),
       );
@@ -150,7 +152,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
                         decoration: InputDecoration(
                           labelText: 'সংরক্ষণের উপজেলা (Location)',
                         ),
-                        value: _selectedUpazila,
+                        initialValue: _selectedUpazila,
                         items:
                             upazilaCoords.keys.map((String value) {
                               return DropdownMenuItem<String>(

@@ -10,7 +10,11 @@ const Map<String, Map<String, double>> upazilaCoords = {
   'Laxmipur Sadar': {'lat': 22.95, 'lon': 90.83},
   'Dinajpur Sadar': {'lat': 25.62, 'lon': 88.63},
   'Bagerhat Sadar': {'lat': 22.66, 'lon': 89.79},
-  // Add more Upazilas relevant to your mock data
+  'Dhaka': {'lat': 23.8103, 'lon': 90.4125},
+  'Chittagong': {'lat': 22.3569, 'lon': 91.7832},
+  'Sylhet': {'lat': 24.8949, 'lon': 91.8687},
+  'Rajshahi': {'lat': 24.3745, 'lon': 88.6042},
+  'Khulna': {'lat': 22.8456, 'lon': 89.5403},
 };
 
 class WeatherService {
@@ -19,8 +23,8 @@ class WeatherService {
 
   Future<List<WeatherForecast>> fetchWeatherForecast(String upazila) async {
     final coords = upazilaCoords[upazila];
-    if (coords == null || _apiKey == 'YOUR_OPENWEATHERMAP_API_KEY') {
-       // Mock Data if API is not set up
+    if (coords == null) {
+       // Mock Data if location not found
        return _getMockWeather();
     }
 

@@ -7,7 +7,7 @@ class SlideInAnimation extends StatefulWidget {
   final Duration duration;
   final Offset beginOffset;
 
-  const SlideInAnimation({
+  const SlideInAnimation({super.key, 
     required this.child,
     this.duration = const Duration(milliseconds: 800),
     this.beginOffset = const Offset(0.0, 0.5),
@@ -60,7 +60,7 @@ class ScaleAnimation extends StatefulWidget {
   final Widget child;
   final Duration duration;
 
-  const ScaleAnimation({
+  const ScaleAnimation({super.key, 
     required this.child,
     this.duration = const Duration(milliseconds: 600),
   });
@@ -103,7 +103,7 @@ class PulseAnimation extends StatefulWidget {
   final Widget child;
   final Duration duration;
 
-  const PulseAnimation({
+  const PulseAnimation({super.key, 
     required this.child,
     this.duration = const Duration(milliseconds: 1500),
   });

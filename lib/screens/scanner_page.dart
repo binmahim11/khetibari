@@ -6,6 +6,8 @@ import 'package:khetibari/utils/constants.dart';
 import 'dart:math';
 
 class ScannerPage extends StatefulWidget {
+  const ScannerPage({super.key});
+
   @override
   _ScannerPageState createState() => _ScannerPageState();
 }

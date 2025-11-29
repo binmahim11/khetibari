@@ -4,7 +4,7 @@ bool isBangla = true; // Set this based on user preference
 class Constants {
   // A3: Weather API Key
   static const String openWeatherMapApiKey =
-      'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your actual key
+      '2e441b618a9df728a58f7e3de1284e9f';
 
   static const Map<String, Map<String, String>> localizedStrings = {
     'en': {

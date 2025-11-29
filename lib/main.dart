@@ -4,15 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:khetibari/screens/landing_page.dart';
 import 'package:khetibari/services/data_service.dart';
 import 'package:khetibari/services/marketplace_service.dart';
+import 'package:khetibari/screens/firebase_init.dart';
+import 'package:khetibari/screens/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await DataService.initialize(); // Initialize Hive for A2
-  await MarketplaceService.initialize(); // Initialize marketplace with mock data
-  runApp(MyApp());
+
+  // Initialize Firebase on all platforms
+  await FirebaseInitializer.init();
+
+  // Initialize Hive (A2 requirement)
+  await DataService.initialize();
+
+  // Initialize marketplace mock data
+  await MarketplaceService.initialize();
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,19 +32,20 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
-        fontFamily: 'Shonar Bangla', // Use a suitable Bangla font
+        fontFamily: 'Shonar Bangla', 
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyLarge: TextStyle(fontSize: 16.0),
           bodyMedium: TextStyle(fontSize: 14.0),
         ),
       ),
-      home: LandingPage(),
-      // Define all routes here (if needed, or use MaterialPageRoute)
+
+      // Start with LandingPage - users can navigate to Login/Signup from there
+      home: const LandingPage(),
+
       routes: {
         '/landing': (context) => LandingPage(),
-        // '/registration': (context) => RegistrationPage(),
-        // '/scanner': (context) => ScannerPage(),
+        '/home': (context) => const AuthWrapper(), // Protected route
       },
     );
   }

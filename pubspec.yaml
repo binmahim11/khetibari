@@ -45,6 +45,12 @@ dependencies:
   # For A5: Camera/Gallery Integration
   image_picker: ^1.0.7
   
+  # Firebase core services
+  firebase_core: ^2.0.0
+  firebase_auth: ^4.0.0
+  cloud_firestore: ^4.0.0
+  firebase_storage: ^11.0.0
+  
   # Utility
   intl: ^0.18.1 # For date/time formatting
 

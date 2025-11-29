@@ -7,7 +7,7 @@ import 'package:khetibari/utils/animations.dart';
 class FarmerDashboardPage extends StatefulWidget {
   final String farmerId;
 
-  const FarmerDashboardPage({required this.farmerId});
+  const FarmerDashboardPage({super.key, required this.farmerId});
 
   @override
   State<FarmerDashboardPage> createState() => _FarmerDashboardPageState();

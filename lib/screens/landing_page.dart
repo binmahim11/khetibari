@@ -3,49 +3,19 @@
 import 'package:flutter/material.dart';
 import 'package:khetibari/utils/constants.dart';
 import 'package:khetibari/utils/animations.dart';
-import 'package:khetibari/screens/crop_batch_page.dart'; // Next page
-import 'package:khetibari/screens/farmer_dashboard_page.dart';
 import 'package:khetibari/screens/marketplace_page.dart';
+import 'package:khetibari/screens/login.dart';
+import 'package:khetibari/screens/signup.dart';
 
 class LandingPage extends StatelessWidget {
+  const LandingPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(Constants.getTranslation('app_title')),
         backgroundColor: Colors.green.shade700,
-        actions: [
-          PopupMenuButton(
-            itemBuilder:
-                (context) => [
-                  PopupMenuItem(
-                    child: const Text('Farmer Dashboard'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => const FarmerDashboardPage(
-                                farmerId: 'FARMER_001',
-                              ),
-                        ),
-                      );
-                    },
-                  ),
-                  PopupMenuItem(
-                    child: const Text('Marketplace'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MarketplacePage(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -109,32 +79,57 @@ class LandingPage extends StatelessWidget {
                       style: TextStyle(fontSize: 16),
                     ),
                     SizedBox(height: 40),
-                    // CTA Button (Leads to A2 Registration)
-                    PulseAnimation(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CropBatchPage(),
+                    // Auth buttons (Login & Signup)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
                             ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 50,
-                            vertical: 15,
+                            backgroundColor: Colors.blue.shade700,
                           ),
-                          backgroundColor: Colors.green.shade700,
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                        child: Text(
-                          Constants.getTranslation('get_started_btn'),
-                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SignupPage(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            backgroundColor: Colors.orange.shade700,
+                          ),
+                          child: const Text(
+                            'Sign Up',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    SizedBox(height: 30),
-                    // Marketplace Quick Link
+                    const SizedBox(height: 24),
+                    // Direct Marketplace (available pre-auth)
                     SlideInAnimation(
                       beginOffset: const Offset(0.5, 0),
                       child: ElevatedButton.icon(
@@ -154,33 +149,6 @@ class LandingPage extends StatelessWidget {
                             vertical: 12,
                           ),
                           backgroundColor: Colors.blue.shade700,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    // Dashboard Quick Link
-                    SlideInAnimation(
-                      beginOffset: const Offset(-0.5, 0),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => const FarmerDashboardPage(
-                                    farmerId: 'FARMER_001',
-                                  ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.bar_chart),
-                        label: const Text('Farmer Dashboard'),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 40,
-                            vertical: 12,
-                          ),
-                          backgroundColor: Colors.purple.shade700,
                         ),
                       ),
                     ),

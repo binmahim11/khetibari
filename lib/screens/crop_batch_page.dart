@@ -6,6 +6,8 @@ import 'package:khetibari/services/data_service.dart';
 import 'package:khetibari/utils/constants.dart';
 
 class CropBatchPage extends StatefulWidget {
+  const CropBatchPage({super.key});
+
   @override
   State<CropBatchPage> createState() => _CropBatchPageState();
 }
@@ -87,7 +89,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
               // Crop Type Dropdown
               DropdownButtonFormField<String>(
-                value: cropType,
+                initialValue: cropType,
                 decoration: InputDecoration(
                   labelText: 'Crop Type',
                   border: OutlineInputBorder(),
@@ -153,7 +155,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
               // Storage Location (Upazila)
               DropdownButtonFormField<String>(
-                value: storageLocationUpazila,
+                initialValue: storageLocationUpazila,
                 decoration: InputDecoration(
                   labelText: 'Storage Location (Upazila)',
                   border: OutlineInputBorder(),
@@ -175,7 +177,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
               // Storage Type
               DropdownButtonFormField<String>(
-                value: storageType,
+                initialValue: storageType,
                 decoration: InputDecoration(
                   labelText: 'Storage Type',
                   border: OutlineInputBorder(),
@@ -259,7 +261,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Batch ${batchId} saved successfully!'),
+          content: Text('Batch $batchId saved successfully!'),
           duration: Duration(seconds: 2),
         ),
       );

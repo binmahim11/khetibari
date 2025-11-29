@@ -8,7 +8,7 @@ import 'package:khetibari/utils/animations.dart';
 class MarketplacePage extends StatefulWidget {
   final String? selectedLocation;
 
-  const MarketplacePage({this.selectedLocation});
+  const MarketplacePage({super.key, this.selectedLocation});
 
   @override
   State<MarketplacePage> createState() => _MarketplacePageState();
