@@ -4,6 +4,7 @@ import 'package:khetibari/screens/crop_batch_page.dart';
 import 'package:khetibari/screens/farmer_dashboard_page.dart';
 import 'package:khetibari/screens/marketplace_page.dart';
 import 'package:khetibari/screens/landing_page.dart';
+import 'package:khetibari/screens/risk_map' as risk_map_screen;
 import 'package:khetibari/services/weather_service.dart';
 import 'package:khetibari/services/prediction_service.dart';
 import 'package:khetibari/services/data_service.dart';
@@ -461,6 +462,25 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const risk_map_screen.RiskMapPage(
+                      farmerId: 'FARMER_001',
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.map),
+              label: const Text('Community Risk Map'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: Colors.red.shade700,
+              ),
+            ),
+            const SizedBox(height: 12),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(

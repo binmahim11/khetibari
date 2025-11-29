@@ -1,0 +1,422 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:khetibari/models/risk_map_data.dart';
+import 'package:khetibari/services/risk_map_service.dart';
+
+/// Risk Map Page - Visualizes community spoilage risk landscape
+/// Features:
+/// - Responsive map centered on farmer's district
+/// - Color-coded anonymous neighbor markers (Green=Low, Yellow=Medium, Red=High)
+/// - Farmer's own location marked with blue pin
+/// - Bangla tooltips with risk level and crop type
+/// - Touch-friendly panning and zooming
+class RiskMapPage extends StatefulWidget {
+  final String farmerId;
+  final String? userDistrict; // User's registered district (optional)
+
+  const RiskMapPage({
+    super.key,
+    required this.farmerId,
+    this.userDistrict,
+  });
+
+  @override
+  State<RiskMapPage> createState() => _RiskMapPageState();
+}
+
+class _RiskMapPageState extends State<RiskMapPage> {
+  late MapController _mapController;
+  final RiskMapService _riskMapService = RiskMapService();
+  
+  late String _selectedDistrict;
+  late DistrictBoundary _districtBoundary;
+  late FarmerLocation _farmerLocation;
+  late List<NeighborRiskPoint> _neighbors;
+  
+  List<Marker> _markers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    
+    // Set district (use user's district or default to Laxmipur)
+    _selectedDistrict = widget.userDistrict ?? 'লক্ষ্মীপুর';
+    _districtBoundary = bangladeshDistricts[_selectedDistrict] ?? 
+        bangladeshDistricts['লক্ষ্মীপুর']!;
+    
+    _initializeMapData();
+  }
+
+  void _initializeMapData() {
+    // Get farmer's mocked location
+    _farmerLocation = _riskMapService.getMockedFarmerLocation(
+      farmerId: widget.farmerId,
+      district: _selectedDistrict,
+      centerCoordinates: _districtBoundary.center,
+    );
+    
+    // Generate mock neighbor data (12-15 points)
+    _neighbors = _riskMapService.generateMockNeighborData(
+      district: _selectedDistrict,
+      centerCoordinates: _districtBoundary.center,
+      pointCount: 14,
+    );
+    
+    // Build all markers
+    _buildMarkers();
+  }
+
+  void _buildMarkers() {
+    List<Marker> markers = [];
+    
+    // 1. Add farmer's own location (blue pin)
+    markers.add(
+      _buildFarmerMarker(_farmerLocation),
+    );
+    
+    // 2. Add anonymous neighbor risk markers (color-coded)
+    for (final neighbor in _neighbors) {
+      markers.add(
+        _buildNeighborMarker(neighbor),
+      );
+    }
+    
+    setState(() => _markers = markers);
+  }
+
+  /// Builds the marker for the farmer's own location (blue pin)
+  Marker _buildFarmerMarker(FarmerLocation farmer) {
+    return Marker(
+      width: 60,
+      height: 60,
+      point: farmer.coordinates,
+      child: GestureDetector(
+        onTap: () => _showFarmerTooltip(farmer),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade700,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'আমার খামার',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.location_on,
+              color: Colors.blue.shade700,
+              size: 40,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds markers for anonymous neighbor risk points
+  /// Color coding: Green (Low), Yellow (Medium), Red (High)
+  Marker _buildNeighborMarker(NeighborRiskPoint neighbor) {
+    final color = _getRiskColor(neighbor.riskLevel);
+    
+    return Marker(
+      width: 50,
+      height: 50,
+      point: neighbor.coordinates,
+      child: GestureDetector(
+        onTap: () => _showNeighborTooltip(neighbor),
+        child: Icon(
+          Icons.location_on,
+          color: color,
+          size: 36,
+        ),
+      ),
+    );
+  }
+
+  /// Gets color for risk level
+  Color _getRiskColor(RiskLevel level) {
+    switch (level) {
+      case RiskLevel.low:
+        return Colors.green.shade600;      // Green
+      case RiskLevel.medium:
+        return Colors.amber.shade600;      // Yellow/Amber
+      case RiskLevel.high:
+        return Colors.red.shade600;        // Red
+    }
+  }
+
+  /// Shows tooltip for farmer's own location
+  void _showFarmerTooltip(FarmerLocation farmer) {
+    _showRiskBottomSheet(
+      title: 'আমার খামার',
+      content: [
+        _buildTooltipRow('ফসলের ধরন:', farmer.cropTypeBangla),
+        _buildTooltipRow('জেলা:', farmer.district),
+        _buildTooltipRow('উপজেলা:', farmer.upazila),
+      ],
+    );
+  }
+
+  /// Shows tooltip for neighbor risk point (completely anonymous)
+  void _showNeighborTooltip(NeighborRiskPoint neighbor) {
+    final riskLevelBangla = neighbor.getRiskLevelBangla();
+    final lastUpdated = _riskMapService.formatLastUpdateBangla(neighbor.lastUpdated);
+    
+    _showRiskBottomSheet(
+      title: 'আশপাশের ঝুঁকি তথ্য',
+      content: [
+        _buildTooltipRow('ফসলের ধরন:', neighbor.cropTypeBangla),
+        _buildTooltipRow('ঝুঁকির স্তর:', riskLevelBangla, 
+            color: _getRiskColor(neighbor.riskLevel)),
+        _buildTooltipRow('শেষ আপডেট:', lastUpdated),
+      ],
+      subtitle: 'সম্পূর্ণ গোপনীয় - কোন ব্যক্তিগত তথ্য প্রদর্শন করা হয় না',
+    );
+  }
+
+  /// Displays a bottom sheet with risk information
+  void _showRiskBottomSheet({
+    required String title,
+    required List<Widget> content,
+    String? subtitle,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                ...content,
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                    ),
+                    child: const Text(
+                      'বন্ধ করুন',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Builds a single row in the tooltip with label and value
+  Widget _buildTooltipRow(String label, String value, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: color ?? Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Changes selected district and reloads map
+  void _changeDistrict(String district) {
+    setState(() {
+      _selectedDistrict = district;
+      _districtBoundary = bangladeshDistricts[district] ?? 
+          bangladeshDistricts['লক্ষ্মীপুর']!;
+    });
+    
+    _riskMapService.clearCache();
+    _initializeMapData();
+    
+    // Animate to new district center
+    _mapController.move(
+      _districtBoundary.center,
+      _districtBoundary.defaultZoom,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('স্থানীয় ঝুঁকি মানচিত্র'),
+        backgroundColor: Colors.green.shade700,
+        elevation: 0,
+      ),
+      body: Stack(
+        children: [
+          // Map
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              center: _districtBoundary.center,
+              zoom: _districtBoundary.defaultZoom,
+              maxZoom: 18,
+              minZoom: 5,
+            ),
+            children: [
+              // OpenStreetMap tiles
+              TileLayer(
+                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c'],
+              ),
+              // All markers (farmer + neighbors)
+              MarkerLayer(markers: _markers),
+            ],
+          ),
+          
+          // Legend (bottom-left)
+          Positioned(
+            bottom: 16,
+            left: 16,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'মানচিত্র পৌরাণিক:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildLegendItem(Colors.blue.shade700, 'আমার খামার'),
+                  _buildLegendItem(Colors.green.shade600, 'কম ঝুঁকি'),
+                  _buildLegendItem(Colors.amber.shade600, 'মধ্যম ঝুঁকি'),
+                  _buildLegendItem(Colors.red.shade600, 'উচ্চ ঝুঁকি'),
+                ],
+              ),
+            ),
+          ),
+          
+          // District selector (top-right)
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: DropdownButton<String>(
+                value: _selectedDistrict,
+                underline: const SizedBox.shrink(),
+                items: bangladeshDistricts.keys
+                    .map((district) => DropdownMenuItem(
+                      value: district,
+                      child: Text(district),
+                    ))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    _changeDistrict(value);
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds a legend item with color and label
+  Widget _buildLegendItem(Color color, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
