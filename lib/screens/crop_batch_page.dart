@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:khetibari/models/crop_batch.dart';
 import 'package:khetibari/services/data_service.dart';
 import 'package:khetibari/utils/constants.dart';
+import 'package:khetibari/utils/app_button_styles.dart';
+import 'package:khetibari/utils/animated_farmer_graphics.dart';
+import 'package:khetibari/screens/voice_interface_widget.dart';
 
 class CropBatchPage extends StatefulWidget {
   const CropBatchPage({super.key});
@@ -62,12 +65,60 @@ class _CropBatchPageState extends State<CropBatchPage> {
     currentMoistureLevel = 15.0;
   }
 
+  void _handleVoiceCommand(String command) {
+    switch (command) {
+      case 'save':
+        _submitForm();
+        break;
+      case 'submit':
+        _submitForm();
+        break;
+      case 'cancel':
+        Navigator.pop(context);
+        break;
+      case 'home':
+        Navigator.popUntil(context, (route) => route.isFirst);
+        break;
+    }
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final batch = CropBatch(
+        batchId: batchId,
+        farmerId: farmerId,
+        cropType: cropType,
+        estimatedWeightKg: estimatedWeightKg,
+        harvestDate: harvestDate,
+        storageLocationUpazila: storageLocationUpazila,
+        storageType: storageType,
+        loggedDate: DateTime.now(),
+        currentMoistureLevel: currentMoistureLevel,
+      );
+
+      _dataService.registerCropBatch(batch);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ফসলের ব্যাচ সফলভাবে নিবন্ধিত হয়েছে!')),
+      );
+
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(Constants.getTranslation('register_crop_btn')),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: Colors.black,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          letterSpacing: 0.5,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white, size: 28),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24.0),
@@ -76,6 +127,21 @@ class _CropBatchPageState extends State<CropBatchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Animated Farmer Graphic Header
+              Center(
+                child: AnimatedFarmerGraphic(
+                  type: 'tractor',
+                  width: 150,
+                  height: 120,
+                  animationType: 'slideUp',
+                  duration: const Duration(milliseconds: 1200),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Voice Interface Widget
+              VoiceInterfaceWidget(onCommandReceived: _handleVoiceCommand),
+              SizedBox(height: 16),
               // Batch ID (Read-only)
               TextFormField(
                 initialValue: batchId,
@@ -89,7 +155,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
               // Crop Type Dropdown
               DropdownButtonFormField<String>(
-                initialValue: cropType,
+                value: cropType,
                 decoration: InputDecoration(
                   labelText: 'Crop Type',
                   border: OutlineInputBorder(),
@@ -155,7 +221,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
               // Storage Location (Upazila)
               DropdownButtonFormField<String>(
-                initialValue: storageLocationUpazila,
+                value: storageLocationUpazila,
                 decoration: InputDecoration(
                   labelText: 'Storage Location (Upazila)',
                   border: OutlineInputBorder(),
@@ -177,7 +243,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
 
               // Storage Type
               DropdownButtonFormField<String>(
-                initialValue: storageType,
+                value: storageType,
                 decoration: InputDecoration(
                   labelText: 'Storage Type',
                   border: OutlineInputBorder(),
@@ -213,12 +279,16 @@ class _CropBatchPageState extends State<CropBatchPage> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _saveCropBatch,
-                  icon: Icon(Icons.save),
-                  label: Text(Constants.getTranslation('register_crop_btn')),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.green.shade700,
+                  icon: const Icon(Icons.save),
+                  label: Text(
+                    Constants.getTranslation('register_crop_btn'),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 0.3,
+                    ),
                   ),
+                  style: AppButtonStyles.largePrimaryBlackButton(),
                 ),
               ),
               SizedBox(height: 16),
@@ -228,12 +298,16 @@ class _CropBatchPageState extends State<CropBatchPage> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _viewBatches,
-                  icon: Icon(Icons.list),
-                  label: Text('View Saved Batches'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blue.shade700,
+                  icon: const Icon(Icons.list),
+                  label: const Text(
+                    'View Saved Batches',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 0.3,
+                    ),
                   ),
+                  style: AppButtonStyles.largePrimaryBlackButton(),
                 ),
               ),
             ],

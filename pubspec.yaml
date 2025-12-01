@@ -58,6 +58,16 @@ dependencies:
   # For Gemini AI and pest identification (Visual RAG)
   google_generative_ai: ^0.4.2
   
+  # For Voice/Touchless Interface (Bangla Voice Commands)
+  speech_to_text: ^6.4.0
+  flutter_tts: ^4.2.3
+  permission_handler: ^11.1.0
+  
+  # For Language & Theme Management
+  provider: ^6.1.0
+  shared_preferences: ^2.2.2
+  uuid: ^4.1.0
+  
   # Utility
   intl: ^0.18.1 # For date/time formatting
 

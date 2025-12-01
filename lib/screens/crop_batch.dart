@@ -152,7 +152,7 @@ class _CropBatchPageState extends State<CropBatchPage> {
                         decoration: InputDecoration(
                           labelText: 'সংরক্ষণের উপজেলা (Location)',
                         ),
-                        initialValue: _selectedUpazila,
+                        value: _selectedUpazila,
                         items:
                             upazilaCoords.keys.map((String value) {
                               return DropdownMenuItem<String>(

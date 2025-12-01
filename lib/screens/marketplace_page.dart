@@ -1,9 +1,14 @@
 // marketplace_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:khetibari/models/marketplace.dart';
 import 'package:khetibari/services/marketplace_service.dart';
 import 'package:khetibari/utils/animations.dart';
+import 'package:khetibari/screens/voice_interface_widget.dart';
+import 'package:khetibari/utils/animated_farmer_graphics.dart';
+import 'package:khetibari/providers/language_provider.dart';
+import 'package:khetibari/providers/theme_provider.dart';
 
 class MarketplacePage extends StatefulWidget {
   final String? selectedLocation;
@@ -45,15 +50,81 @@ class _MarketplacePageState extends State<MarketplacePage> {
     }
   }
 
+  /// Handle voice commands from VoiceInterfaceWidget
+  void _handleVoiceCommand(String command) {
+    final lowerCommand = command.toLowerCase();
+
+    if (lowerCommand.contains('সব') || lowerCommand.contains('পণ্য')) {
+      _loadProducts();
+    } else if (lowerCommand.contains('খুঁজ') ||
+        lowerCommand.contains('সার্চ')) {
+      // Would need more speech context to search
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('পণ্য খুঁজতে কী খুঁজছেন তা বলুন')),
+      );
+    } else if (lowerCommand.contains('হোম') || lowerCommand.contains('বাড়ি')) {
+      Navigator.pop(context);
+    } else if (lowerCommand.contains('সাফল্য') ||
+        lowerCommand.contains('ঠিক আছে')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('আপনার কমান্ড বোঝা হয়েছে ✓')),
+      );
+    } else {
+      // Try to search for the command text as a product
+      _searchProducts(command);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isBangla = context.watch<LanguageProvider>().isBangla;
+    final isDark = context.watch<ThemeProvider>().isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Direct Marketplace'),
-        backgroundColor: Colors.green.shade700,
+        title: Text(Translations.get('marketplace', isBangla: isBangla)),
+        backgroundColor: Colors.black,
+        elevation: 2,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          letterSpacing: 0.5,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white, size: 28),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            tooltip: isBangla ? 'English' : 'বাংলা',
+            onPressed: () async {
+              await context.read<LanguageProvider>().toggleLanguage();
+            },
+          ),
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            tooltip: isDark ? 'Light Mode' : 'Dark Mode',
+            onPressed: () async {
+              await context.read<ThemeProvider>().toggleTheme();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
+          // Animated Farmer/Land Graphic
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: AnimatedFarmerGraphic(
+              type: 'land_pattern',
+              width: 140,
+              height: 100,
+              animationType: 'fadeIn',
+              duration: const Duration(milliseconds: 1000),
+            ),
+          ),
+
+          // Voice Interface Widget
+          VoiceInterfaceWidget(onCommandReceived: _handleVoiceCommand),
           // Search Bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -61,7 +132,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
               controller: _searchController,
               onChanged: _searchProducts,
               decoration: InputDecoration(
-                hintText: 'Search products, crops...',
+                hintText:
+                    isBangla ? 'পণ্য খুঁজুন...' : 'Search products, crops...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon:
                     _searchController.text.isNotEmpty

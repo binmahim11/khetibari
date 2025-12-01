@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>কথ্য কমান্ডের মাধ্যমে আপনার কৃষি সেবা নিয়ন্ত্রণ করতে আমরা আপনার মাইক্রোফোন অ্যাক্সেস প্রয়োজন</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>আপনার বাংলা কথা বুঝতে এবং কমান্ড সনাক্ত করতে আমরা কথা স্বীকৃতি ফিচার ব্যবহার করি</string>
 </dict>
 </plist>
