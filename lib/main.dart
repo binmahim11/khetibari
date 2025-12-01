@@ -10,7 +10,6 @@ import 'package:khetibari/screens/firebase_init.dart';
 import 'package:khetibari/screens/auth_wrapper.dart';
 import 'package:khetibari/providers/language_provider.dart';
 import 'package:khetibari/providers/theme_provider.dart';
-import 'package:khetibari/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +24,11 @@ void main() async {
   await MarketplaceService.initialize();
 
   // Initialize Pest Identification AI Service with Gemini API key
-  // Note: Firebase API key has limitations. For full Gemini features,
-  // get a dedicated Gemini API key from Google Cloud Console
-  final geminiApiKey = DefaultFirebaseOptions.currentPlatform.apiKey;
+  // IMPORTANT: Use a dedicated Gemini API key from Google AI Studio
+  // Get it from: https://aistudio.google.com/app/apikey
+  // Firebase API key has limitations and won't work with Gemini
+  const geminiApiKey =
+      'AIzaSyBGv1lW5yn1go-r8v3RyhxAgt4OFfMCSBQ'; // Gemini API key configured
   PestIdentificationService.setApiKey(geminiApiKey);
 
   runApp(const MyApp());
